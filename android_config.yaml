@@ -1,0 +1,16 @@
+# Android specific settings
+android {
+    compileSdkVersion: 34
+    minSdkVersion: 21
+    targetSdkVersion: 34
+}
+
+# iOS specific settings
+ios {
+    platform: 12.0
+}
+
+# App permissions (to be added in AndroidManifest.xml and Info.plist)
+permissions:
+  - INTERNET
+  - ACCESS_NETWORK_STATE
