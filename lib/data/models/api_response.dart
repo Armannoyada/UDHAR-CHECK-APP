@@ -10,12 +10,6 @@ class AuthResponse extends Equatable {
     this.message,
   });
 
-  final bool success;
-  final User user;
-  final String accessToken;
-  final String? refreshToken;
-  final String? message;
-
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
       success: json['success'] ?? true,
@@ -25,6 +19,12 @@ class AuthResponse extends Equatable {
       message: json['message'],
     );
   }
+
+  final bool success;
+  final User user;
+  final String accessToken;
+  final String? refreshToken;
+  final String? message;
 
   Map<String, dynamic> toJson() {
     return {
@@ -48,11 +48,6 @@ class ApiResponse<T> extends Equatable {
     this.errors,
   });
 
-  final bool success;
-  final T? data;
-  final String? message;
-  final List<String>? errors;
-
   factory ApiResponse.fromJson(
     Map<String, dynamic> json,
     T Function(dynamic)? fromJsonT,
@@ -67,6 +62,11 @@ class ApiResponse<T> extends Equatable {
     );
   }
 
+  final bool success;
+  final T? data;
+  final String? message;
+  final List<String>? errors;
+
   @override
   List<Object?> get props => [success, data, message, errors];
 }
@@ -79,14 +79,6 @@ class PaginatedResponse<T> extends Equatable {
     required this.limit,
     required this.totalPages,
   });
-
-  final List<T> items;
-  final int total;
-  final int page;
-  final int limit;
-  final int totalPages;
-
-  bool get hasMore => page < totalPages;
 
   factory PaginatedResponse.fromJson(
     Map<String, dynamic> json,
@@ -101,6 +93,14 @@ class PaginatedResponse<T> extends Equatable {
       totalPages: json['totalPages'] ?? json['total_pages'] ?? 1,
     );
   }
+
+  final List<T> items;
+  final int total;
+  final int page;
+  final int limit;
+  final int totalPages;
+
+  bool get hasMore => page < totalPages;
 
   @override
   List<Object?> get props => [items, total, page, limit, totalPages];
@@ -123,20 +123,6 @@ class DashboardStats extends Equatable {
     this.totalDisputes = 0,
   });
 
-  final double totalLent;
-  final double availableBalance;
-  final int activeLoansCount;
-  final int completedLoansCount;
-  final double totalBorrowed;
-  final int activeBorrowingsCount;
-  final int pendingRequestsCount;
-  final double totalRepaid;
-  final int overdueCount;
-  final int totalUsers;
-  final int pendingVerifications;
-  final int totalActiveLoans;
-  final int totalDisputes;
-
   factory DashboardStats.fromJson(Map<String, dynamic> json) {
     return DashboardStats(
       totalLent: (json['totalLent'] ?? json['total_lent'] ?? 0).toDouble(),
@@ -154,6 +140,20 @@ class DashboardStats extends Equatable {
       totalDisputes: json['totalDisputes'] ?? json['total_disputes'] ?? 0,
     );
   }
+
+  final double totalLent;
+  final double availableBalance;
+  final int activeLoansCount;
+  final int completedLoansCount;
+  final double totalBorrowed;
+  final int activeBorrowingsCount;
+  final int pendingRequestsCount;
+  final double totalRepaid;
+  final int overdueCount;
+  final int totalUsers;
+  final int pendingVerifications;
+  final int totalActiveLoans;
+  final int totalDisputes;
 
   @override
   List<Object?> get props => [

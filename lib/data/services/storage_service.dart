@@ -5,11 +5,11 @@ import '../../core/utils/constants.dart';
 import '../models/user_model.dart';
 
 class StorageService {
+
+  StorageService._();
   static StorageService? _instance;
   static SharedPreferences? _prefs;
   static const FlutterSecureStorage _secureStorage = FlutterSecureStorage();
-
-  StorageService._();
 
   static Future<StorageService> getInstance() async {
     _instance ??= StorageService._();
