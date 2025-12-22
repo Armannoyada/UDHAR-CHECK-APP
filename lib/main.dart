@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/di/injection_container.dart';
 import 'core/routes/app_router.dart';
 import 'core/theme/app_theme.dart';
+import 'presentation/bloc/auth/auth_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,14 +19,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Udhar Check App',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: ThemeMode.system,
-      onGenerateRoute: AppRouter.onGenerateRoute,
-      initialRoute: AppRouter.splash,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (context) => getIt<AuthBloc>()..add(const AuthCheckRequested()),
+        ),
+      ],
+      child: MaterialApp(
+        title: 'उधार Check',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
+        onGenerateRoute: AppRouter.onGenerateRoute,
+        initialRoute: AppRouter.splash,
+      ),
     );
   }
 }
