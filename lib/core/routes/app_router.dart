@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../presentation/pages/splash/splash_page.dart';
 import '../../presentation/pages/home/home_page.dart';
+import '../../presentation/pages/home/lender_home_page.dart';
 import '../../presentation/pages/auth/login_page.dart';
 import '../../presentation/pages/auth/register_page.dart';
 import '../../presentation/pages/onboarding/onboarding_page.dart';
@@ -9,6 +10,7 @@ import '../../presentation/pages/onboarding/verification_pending_page.dart';
 class AppRouter {
   static const String splash = '/';
   static const String home = '/home';
+  static const String lenderHome = '/lender-home';
   static const String login = '/login';
   static const String register = '/register';
   static const String forgotPassword = '/forgot-password';
@@ -25,6 +27,11 @@ class AppRouter {
       case home:
         return MaterialPageRoute(
           builder: (_) => const HomePage(),
+        );
+      
+      case lenderHome:
+        return MaterialPageRoute(
+          builder: (_) => const LenderHomePage(),
         );
       
       case login:

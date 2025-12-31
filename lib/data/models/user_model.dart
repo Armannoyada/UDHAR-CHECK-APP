@@ -174,8 +174,11 @@ class User {
   final bool? isFaceVerified;
   final bool? isOnboardingComplete;
   final bool? isAdminVerified;
+  @JsonKey(fromJson: _doubleFromString)
   final double? trustScore;
+  @JsonKey(fromJson: _doubleFromString)
   final double? repaymentScore;
+  @JsonKey(fromJson: _doubleFromString)
   final double? averageRating;
   @JsonKey(fromJson: _intFromDynamic)
   final int? totalRatings;
@@ -184,7 +187,9 @@ class User {
   @JsonKey(name: 'rejectionReason')
   final String? verificationRejectionReason;
   final List<String>? rejectedDocuments;
+  @JsonKey(name: 'emailVerified')
   final bool? isEmailVerified;
+  @JsonKey(name: 'phoneVerified')
   final bool? isPhoneVerified;
   final bool? isActive;
   final bool? isBlocked;

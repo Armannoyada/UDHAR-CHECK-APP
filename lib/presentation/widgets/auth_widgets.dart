@@ -224,7 +224,7 @@ class AuthBrandingSection extends StatelessWidget {
               Text(
                 'A trusted platform for peer-to-peer lending with verified users, smart reputation scoring, and secure transactions.',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: AppColors.white.withOpacity(0.9),
+                      color: AppColors.white.withValues(alpha: 0.9),
                       height: 1.5,
                     ),
                 textAlign: TextAlign.center,

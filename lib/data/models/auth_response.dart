@@ -6,7 +6,6 @@ part 'auth_response.g.dart';
 /// Login Response Model
 @JsonSerializable()
 class LoginResponse {
-
   LoginResponse({
     required this.success,
     this.message,
@@ -15,8 +14,20 @@ class LoginResponse {
     this.user,
   });
 
-  factory LoginResponse.fromJson(Map<String, dynamic> json) =>
-      _$LoginResponseFromJson(json);
+  /// Custom fromJson to handle nested 'data' structure from backend
+  factory LoginResponse.fromJson(Map<String, dynamic> json) {
+    final data = json['data'] as Map<String, dynamic>?;
+    return LoginResponse(
+      success: json['success'] as bool,
+      message: json['message'] as String?,
+      // Backend sends 'token' inside 'data', not 'accessToken'
+      accessToken: data?['token'] as String?,
+      refreshToken: data?['refreshToken'] as String?,
+      user: data?['user'] == null
+          ? null
+          : User.fromJson(data!['user'] as Map<String, dynamic>),
+    );
+  }
   final bool success;
   final String? message;
   final String? accessToken;
@@ -28,7 +39,6 @@ class LoginResponse {
 /// Register Response Model
 @JsonSerializable()
 class RegisterResponse {
-
   RegisterResponse({
     required this.success,
     this.message,
@@ -37,8 +47,33 @@ class RegisterResponse {
     this.user,
   });
 
-  factory RegisterResponse.fromJson(Map<String, dynamic> json) =>
-      _$RegisterResponseFromJson(json);
+  /// Custom fromJson to handle nested 'data' structure from backend
+  factory RegisterResponse.fromJson(Map<String, dynamic> json) {
+    final data = json['data'] as Map<String, dynamic>?;
+    
+    String? token;
+    User? user;
+    
+    if (data != null) {
+      token = data['token'] as String?;
+      
+      if (data['user'] != null) {
+        try {
+          user = User.fromJson(data['user'] as Map<String, dynamic>);
+        } catch (e) {
+          print('❌ Error parsing user in RegisterResponse: $e');
+        }
+      }
+    }
+    
+    return RegisterResponse(
+      success: json['success'] as bool,
+      message: json['message'] as String?,
+      accessToken: token,
+      refreshToken: data?['refreshToken'] as String?,
+      user: user,
+    );
+  }
   final bool success;
   final String? message;
   final String? accessToken;
@@ -50,7 +85,6 @@ class RegisterResponse {
 /// Login Request Model
 @JsonSerializable()
 class LoginRequest {
-
   LoginRequest({
     required this.email,
     required this.password,
@@ -65,7 +99,8 @@ class LoginRequest {
 
 /// Register Request Model
 @JsonSerializable()
-class RegisterRequest { // 'borrower' or 'lender'
+class RegisterRequest {
+  // 'borrower' or 'lender'
 
   RegisterRequest({
     required this.firstName,
@@ -93,7 +128,6 @@ class RegisterRequest { // 'borrower' or 'lender'
 /// Refresh Token Response Model
 @JsonSerializable()
 class RefreshTokenResponse {
-
   RefreshTokenResponse({
     required this.success,
     this.accessToken,

@@ -103,12 +103,14 @@ class AuthService {
 
   /// Handle Dio errors
   Exception _handleDioError(DioException error) {
+    print('🔥 API Error: ${error.type} - ${error.message}');
+    
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         return ServerException(
-          ErrorMessages.timeout,
+          'Connection timeout. Please check if backend server is running on port 5000.',
           statusCode: 408,
         );
       case DioExceptionType.badResponse:
@@ -122,12 +124,12 @@ class AuthService {
         );
       case DioExceptionType.connectionError:
         return ServerException(
-          ErrorMessages.noInternet,
+          'Cannot connect to server. Make sure backend is running on http://localhost:5000',
           statusCode: 0,
         );
       default:
         return ServerException(
-          error.message ?? ErrorMessages.unknown,
+          error.message ?? 'An error occurred. Please check if backend server is running.',
           statusCode: 0,
         );
     }

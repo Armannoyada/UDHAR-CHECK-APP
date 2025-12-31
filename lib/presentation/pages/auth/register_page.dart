@@ -66,35 +66,90 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
+        listenWhen: (previous, current) {
+          // Only listen when status changes
+          return previous.status != current.status;
+        },
         listener: (context, state) {
+          print('📱 Register page - State changed: ${state.status}');
+
           if (state.status == AuthStatus.error && state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(state.errorMessage!),
+                content: Row(
+                  children: [
+                    const Icon(Icons.error_outline, color: AppColors.white),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Registration Failed',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: AppColors.white,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            state.errorMessage!,
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
                 backgroundColor: AppColors.danger,
                 behavior: SnackBarBehavior.floating,
+                duration: const Duration(seconds: 5),
+                action: SnackBarAction(
+                  label: 'DISMISS',
+                  textColor: AppColors.white,
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                  },
+                ),
               ),
             );
-          } else if (state.status == AuthStatus.authenticated) {
-            // Check if user needs onboarding
-            final user = state.user;
-            if (user != null && user.needsOnboarding) {
-              // Navigate to onboarding
-              Navigator.of(context).pushReplacementNamed(AppRouter.onboarding);
-            } else if (user != null && user.isPendingVerification) {
-              // Navigate to verification pending
-              Navigator.of(context).pushReplacementNamed(AppRouter.verificationPending);
-            } else {
-              // Navigate to home
-              Navigator.of(context).pushReplacementNamed(AppRouter.home);
-            }
+          } else if (state.status == AuthStatus.authenticated &&
+              state.user != null) {
+            print('✅ Registration successful! User: ${state.user?.email}');
+            print('   - needsOnboarding: ${state.user?.needsOnboarding}');
+            print(
+                '   - isOnboardingComplete: ${state.user?.isOnboardingComplete}');
+
+            // Show success message
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text(
+                    'Registration successful! Redirecting to profile setup...'),
+                backgroundColor: Colors.green,
+                duration: Duration(seconds: 1),
+              ),
+            );
+
+            // Navigate to onboarding page after frame is complete
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                print('🚀 Navigating to onboarding page...');
+                Navigator.of(context)
+                    .pushReplacementNamed(AppRouter.onboarding);
+              }
+            });
           }
         },
         builder: (context, state) {
           return LayoutBuilder(
             builder: (context, constraints) {
               final isWideScreen = constraints.maxWidth > 800;
-              
+
               if (isWideScreen) {
                 return _buildWideLayout(state);
               } else {
@@ -160,7 +215,7 @@ class _RegisterPageState extends State<RegisterPage> {
           // Logo
           const AppLogo(),
           const SizedBox(height: 32),
-          
+
           // Create Account Text
           Text(
             'Create Account',
@@ -177,11 +232,11 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
           ),
           const SizedBox(height: 24),
-          
+
           // Role Selection
           _buildRoleSelector(),
           const SizedBox(height: 24),
-          
+
           // Name Fields (Side by Side)
           Row(
             children: [
@@ -207,7 +262,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Email Field
           AuthTextField(
             controller: _emailController,
@@ -218,7 +273,7 @@ class _RegisterPageState extends State<RegisterPage> {
             validator: Validators.validateEmail,
           ),
           const SizedBox(height: 16),
-          
+
           // Phone Field
           AuthTextField(
             controller: _phoneController,
@@ -229,7 +284,7 @@ class _RegisterPageState extends State<RegisterPage> {
             validator: Validators.validatePhone,
           ),
           const SizedBox(height: 16),
-          
+
           // Password Field
           AuthTextField(
             controller: _passwordController,
@@ -249,7 +304,7 @@ class _RegisterPageState extends State<RegisterPage> {
             validator: Validators.validatePassword,
           ),
           const SizedBox(height: 16),
-          
+
           // Confirm Password Field
           AuthTextField(
             controller: _confirmPasswordController,
@@ -259,17 +314,20 @@ class _RegisterPageState extends State<RegisterPage> {
             prefixIcon: Icons.lock_outline,
             suffixIcon: IconButton(
               icon: Icon(
-                _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                _obscureConfirmPassword
+                    ? Icons.visibility_off
+                    : Icons.visibility,
                 color: AppColors.gray400,
               ),
               onPressed: () {
-                setState(() => _obscureConfirmPassword = !_obscureConfirmPassword);
+                setState(
+                    () => _obscureConfirmPassword = !_obscureConfirmPassword);
               },
             ),
             validator: _validateConfirmPassword,
           ),
           const SizedBox(height: 32),
-          
+
           // Create Account Button
           SizedBox(
             width: double.infinity,
@@ -303,7 +361,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Sign In Link
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -370,7 +428,6 @@ class _RegisterPageState extends State<RegisterPage> {
 
 /// Role selection card widget
 class _RoleCard extends StatelessWidget {
-
   const _RoleCard({
     required this.title,
     required this.subtitle,
@@ -392,7 +449,9 @@ class _RoleCard extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.05) : AppColors.white,
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.05)
+              : AppColors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.gray200,

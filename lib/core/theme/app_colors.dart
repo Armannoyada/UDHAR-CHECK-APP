@@ -96,6 +96,6 @@ class AppColors {
 
   /// Get status background color (lighter version)
   static Color getStatusBackgroundColor(String status) {
-    return getStatusColor(status).withOpacity(0.1);
+    return getStatusColor(status).withValues(alpha: 0.1);
   }
 }

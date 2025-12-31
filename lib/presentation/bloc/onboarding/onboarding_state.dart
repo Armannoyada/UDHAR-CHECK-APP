@@ -8,7 +8,6 @@ enum OnboardingStatus {
 }
 
 class OnboardingState extends Equatable {
-
   const OnboardingState({
     this.status = OnboardingStatus.initial,
     this.currentStep = 0,
@@ -30,6 +29,7 @@ class OnboardingState extends Equatable {
     this.isSelfieComplete = false,
     this.isLendingSetupComplete = false,
     this.errorMessage,
+    this.completedUser,
   });
 
   factory OnboardingState.initial({String role = 'borrower'}) {
@@ -42,34 +42,37 @@ class OnboardingState extends Equatable {
   final int currentStep;
   final int totalSteps;
   final String userRole; // 'borrower' or 'lender'
-  
+
   // Address fields
   final String streetAddress;
   final String city;
   final String state;
   final String pincode;
-  
+
   // ID Verification fields
   final String idType;
   final String idNumber;
   final String? documentPath;
   final String? documentName;
-  
+
   // Selfie field
   final String? selfiePath;
-  
+
   // Lending preferences (lender only)
   final double? maxLendingAmount;
   final bool termsAccepted;
-  
+
   // Step completion flags
   final bool isAddressComplete;
   final bool isIdComplete;
   final bool isSelfieComplete;
   final bool isLendingSetupComplete;
-  
+
   // Error message
   final String? errorMessage;
+
+  // Completed user data (returned after successful onboarding)
+  final User? completedUser;
 
   /// Get step titles based on role
   List<String> get stepTitles {
@@ -98,7 +101,10 @@ class OnboardingState extends Equatable {
   /// Check if all steps are complete
   bool get isAllStepsComplete {
     if (userRole == 'lender') {
-      return isAddressComplete && isIdComplete && isSelfieComplete && isLendingSetupComplete;
+      return isAddressComplete &&
+          isIdComplete &&
+          isSelfieComplete &&
+          isLendingSetupComplete;
     }
     return isAddressComplete && isIdComplete && isSelfieComplete;
   }
@@ -134,6 +140,7 @@ class OnboardingState extends Equatable {
     bool? isSelfieComplete,
     bool? isLendingSetupComplete,
     String? errorMessage,
+    User? completedUser,
   }) {
     return OnboardingState(
       status: status ?? this.status,
@@ -154,8 +161,10 @@ class OnboardingState extends Equatable {
       isAddressComplete: isAddressComplete ?? this.isAddressComplete,
       isIdComplete: isIdComplete ?? this.isIdComplete,
       isSelfieComplete: isSelfieComplete ?? this.isSelfieComplete,
-      isLendingSetupComplete: isLendingSetupComplete ?? this.isLendingSetupComplete,
+      isLendingSetupComplete:
+          isLendingSetupComplete ?? this.isLendingSetupComplete,
       errorMessage: errorMessage,
+      completedUser: completedUser ?? this.completedUser,
     );
   }
 
@@ -181,5 +190,6 @@ class OnboardingState extends Equatable {
         isSelfieComplete,
         isLendingSetupComplete,
         errorMessage,
+        completedUser,
       ];
 }

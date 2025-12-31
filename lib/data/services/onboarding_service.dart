@@ -8,7 +8,6 @@ import '../models/user_model.dart';
 
 /// Onboarding API Service
 class OnboardingService {
-
   OnboardingService(this._apiClient);
   final ApiClient _apiClient;
 
@@ -44,7 +43,7 @@ class OnboardingService {
         if (await documentFile.exists()) {
           final fileName = documentPath.split(Platform.pathSeparator).last;
           final extension = fileName.split('.').last.toLowerCase();
-          
+
           MediaType? mediaType;
           if (extension == 'pdf') {
             mediaType = MediaType('application', 'pdf');
@@ -71,7 +70,7 @@ class OnboardingService {
         if (await selfieFile.exists()) {
           final fileName = selfiePath.split(Platform.pathSeparator).last;
           final extension = fileName.split('.').last.toLowerCase();
-          
+
           MediaType? mediaType;
           if (extension == 'jpg' || extension == 'jpeg') {
             mediaType = MediaType('image', 'jpeg');
@@ -80,7 +79,7 @@ class OnboardingService {
           }
 
           formData.files.add(MapEntry(
-            'selfie',
+            'selfiePhoto',
             await MultipartFile.fromFile(
               selfiePath,
               filename: fileName,
@@ -117,7 +116,6 @@ class OnboardingService {
     required String documentType,
   }) async {
     try {
-      final file = File(filePath);
       final fileName = filePath.split(Platform.pathSeparator).last;
 
       final formData = FormData.fromMap({
@@ -154,7 +152,6 @@ class OnboardingService {
     required String filePath,
   }) async {
     try {
-      final file = File(filePath);
       final fileName = filePath.split(Platform.pathSeparator).last;
 
       final formData = FormData.fromMap({
@@ -188,7 +185,8 @@ class OnboardingService {
   /// Get verification status
   Future<Map<String, dynamic>> getVerificationStatus() async {
     try {
-      final response = await _apiClient.dio.get(ApiConstants.verificationStatus);
+      final response =
+          await _apiClient.dio.get(ApiConstants.verificationStatus);
 
       if (response.statusCode == 200) {
         return response.data;
@@ -238,7 +236,6 @@ class OnboardingService {
 
 /// Onboarding Response Model
 class OnboardingResponse {
-
   OnboardingResponse({
     required this.success,
     this.message,

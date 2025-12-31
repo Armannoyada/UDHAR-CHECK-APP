@@ -1,13 +1,12 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../../domain/repositories/onboarding_repository.dart';
 import '../../../data/models/user_model.dart';
+import '../../../domain/repositories/onboarding_repository.dart';
 
 part 'onboarding_event.dart';
 part 'onboarding_state.dart';
 
 class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
-
   OnboardingBloc({required OnboardingRepository onboardingRepository})
       : _onboardingRepository = onboardingRepository,
         super(OnboardingState.initial()) {
@@ -68,14 +67,15 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
     Emitter<OnboardingState> emit,
   ) {
     bool isValidIdNumber = false;
-    
+
     // Validate ID number based on type
     if (event.idType == 'aadhar') {
-      isValidIdNumber = event.idNumber.length == 12 && 
+      isValidIdNumber = event.idNumber.length == 12 &&
           RegExp(r'^[0-9]+$').hasMatch(event.idNumber);
     } else if (event.idType == 'pan') {
       isValidIdNumber = event.idNumber.length == 10 &&
-          RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$').hasMatch(event.idNumber.toUpperCase());
+          RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$')
+              .hasMatch(event.idNumber.toUpperCase());
     } else if (event.idType == 'voter_id') {
       isValidIdNumber = event.idNumber.length >= 10;
     } else if (event.idType == 'driving_license') {
@@ -140,7 +140,8 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         idNumber: state.idNumber,
         documentPath: state.documentPath!,
         selfiePath: state.selfiePath!,
-        maxLendingAmount: state.userRole == 'lender' ? state.maxLendingAmount : null,
+        maxLendingAmount:
+            state.userRole == 'lender' ? state.maxLendingAmount : null,
         termsAccepted: state.userRole == 'lender' ? state.termsAccepted : null,
       );
 
@@ -151,6 +152,7 @@ class OnboardingBloc extends Bloc<OnboardingEvent, OnboardingState> {
         )),
         (user) => emit(state.copyWith(
           status: OnboardingStatus.success,
+          completedUser: user,
         )),
       );
     } catch (e) {

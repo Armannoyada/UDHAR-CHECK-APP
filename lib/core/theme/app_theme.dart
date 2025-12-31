@@ -94,7 +94,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: AppColors.white,
         elevation: 2,
-        shadowColor: AppColors.gray900.withOpacity(0.1),
+        shadowColor: AppColors.gray900.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -174,7 +174,7 @@ class AppTheme {
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.gray100,
-        selectedColor: AppColors.primary.withOpacity(0.1),
+        selectedColor: AppColors.primary.withValues(alpha: 0.1),
         labelStyle: const TextStyle(color: AppColors.gray700),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -255,7 +255,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: AppColors.gray800,
         elevation: 2,
-        shadowColor: AppColors.black.withOpacity(0.3),
+        shadowColor: AppColors.black.withValues(alpha: 0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),

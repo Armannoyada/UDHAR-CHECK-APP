@@ -8,7 +8,6 @@ import '../services/onboarding_service.dart';
 import '../services/storage_service.dart';
 
 class OnboardingRepositoryImpl implements OnboardingRepository {
-
   OnboardingRepositoryImpl({
     required OnboardingService onboardingService,
     required StorageService storageService,

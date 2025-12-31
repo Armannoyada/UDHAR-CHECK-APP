@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -22,9 +21,6 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
 
   final List<Map<String, String>> _idTypes = [
     {'value': 'aadhar', 'label': 'Aadhar Card'},
-    {'value': 'pan', 'label': 'PAN Card'},
-    {'value': 'voter_id', 'label': 'Voter ID'},
-    {'value': 'driving_license', 'label': 'Driving License'},
   ];
 
   @override
@@ -63,13 +59,13 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
 
       if (result != null && result.files.isNotEmpty) {
         final file = result.files.first;
-        
+
         // Check file size (max 5MB)
         if (file.size > 5 * 1024 * 1024) {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: const Text('File size must be less than 5MB'),
+              const SnackBar(
+                content: Text('File size must be less than 5MB'),
                 backgroundColor: AppColors.danger,
               ),
             );
@@ -96,70 +92,23 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
   }
 
   String _getIdNumberHint() {
-    switch (_selectedIdType) {
-      case 'aadhar':
-        return '12-digit Aadhar number';
-      case 'pan':
-        return 'PAN number (e.g., ABCDE1234F)';
-      case 'voter_id':
-        return 'Voter ID number';
-      case 'driving_license':
-        return 'Driving License number';
-      default:
-        return 'Enter ID number';
-    }
+    return '12-digit Aadhar number';
   }
 
   String _getIdNumberHelperText() {
-    switch (_selectedIdType) {
-      case 'aadhar':
-        return 'Enter 12-digit Aadhar number (numbers only)';
-      case 'pan':
-        return 'Enter 10-character PAN number';
-      case 'voter_id':
-        return 'Enter your Voter ID number';
-      case 'driving_license':
-        return 'Enter your Driving License number';
-      default:
-        return '';
-    }
+    return 'Enter 12-digit Aadhar number (numbers only)';
   }
 
   int _getMaxLength() {
-    switch (_selectedIdType) {
-      case 'aadhar':
-        return 12;
-      case 'pan':
-        return 10;
-      default:
-        return 20;
-    }
+    return 12;
   }
 
   String? _validateIdNumber(String? value) {
     if (value == null || value.isEmpty) {
       return 'Please enter ID number';
     }
-
-    switch (_selectedIdType) {
-      case 'aadhar':
-        if (value.length != 12 || !RegExp(r'^[0-9]+$').hasMatch(value)) {
-          return 'Enter valid 12-digit Aadhar number';
-        }
-        break;
-      case 'pan':
-        if (value.length != 10 ||
-            !RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$')
-                .hasMatch(value.toUpperCase())) {
-          return 'Enter valid PAN number (e.g., ABCDE1234F)';
-        }
-        break;
-      case 'voter_id':
-      case 'driving_license':
-        if (value.length < 10) {
-          return 'Enter valid ID number';
-        }
-        break;
+    if (value.length != 12 || !RegExp(r'^[0-9]+$').hasMatch(value)) {
+      return 'Enter valid 12-digit Aadhar number';
     }
     return null;
   }
@@ -195,12 +144,12 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
             const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
-                color: AppColors.gray50,
+                color: AppColors.white,
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: AppColors.gray200),
+                border: Border.all(color: AppColors.gray300),
               ),
               child: DropdownButtonFormField<String>(
-                initialValue: _selectedIdType,
+                value: _selectedIdType,
                 decoration: const InputDecoration(
                   contentPadding: EdgeInsets.symmetric(
                     horizontal: 16,
@@ -208,10 +157,19 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
                   ),
                   border: InputBorder.none,
                 ),
+                dropdownColor: AppColors.white,
+                icon: const Icon(Icons.keyboard_arrow_down,
+                    color: AppColors.gray500),
                 items: _idTypes.map((type) {
                   return DropdownMenuItem<String>(
                     value: type['value'],
-                    child: Text(type['label']!),
+                    child: Text(
+                      type['label']!,
+                      style: const TextStyle(
+                        color: AppColors.gray900,
+                        fontSize: 15,
+                      ),
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -231,19 +189,12 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
             TextFormField(
               controller: _idNumberController,
               maxLength: _getMaxLength(),
-              textCapitalization: _selectedIdType == 'pan'
-                  ? TextCapitalization.characters
-                  : TextCapitalization.none,
-              keyboardType: _selectedIdType == 'aadhar'
-                  ? TextInputType.number
-                  : TextInputType.text,
-              inputFormatters: _selectedIdType == 'aadhar'
-                  ? [FilteringTextInputFormatter.digitsOnly]
-                  : null,
+              keyboardType: TextInputType.number,
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: _inputDecoration(_getIdNumberHint()).copyWith(
                 counterText: '',
                 helperText: _getIdNumberHelperText(),
-                helperStyle: TextStyle(
+                helperStyle: const TextStyle(
                   color: AppColors.gray500,
                   fontSize: 12,
                 ),
@@ -256,7 +207,7 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
             // Upload Document
             _buildLabel('UPLOAD ID DOCUMENT'),
             const SizedBox(height: 8),
-            Text(
+            const Text(
               'Accepted formats: JPG, PNG, PDF (Max 5MB)',
               style: TextStyle(
                 color: AppColors.gray500,
@@ -264,22 +215,23 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             // Upload Area
             InkWell(
               onTap: _pickDocument,
               borderRadius: BorderRadius.circular(8),
               child: Container(
                 width: double.infinity,
-                padding: const EdgeInsets.all(32),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
                 decoration: BoxDecoration(
-                  color: AppColors.gray50,
+                  color: AppColors.white,
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: _documentPath != null
                         ? AppColors.success
                         : AppColors.gray300,
-                    style: BorderStyle.solid,
+                    width: 1,
                   ),
                 ),
                 child: Column(
@@ -288,22 +240,22 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
                       _documentPath != null
                           ? Icons.check_circle
                           : Icons.cloud_upload_outlined,
-                      size: 48,
+                      size: 40,
                       color: _documentPath != null
                           ? AppColors.success
-                          : AppColors.gray400,
+                          : AppColors.primary,
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      _documentName ?? 'Click to upload document',
+                      _documentPath != null
+                          ? _documentName ?? 'Document uploaded'
+                          : 'Click to upload document',
                       style: TextStyle(
                         color: _documentPath != null
                             ? AppColors.gray900
-                            : AppColors.gray500,
+                            : AppColors.primary,
                         fontSize: 14,
-                        fontWeight: _documentPath != null
-                            ? FontWeight.w500
-                            : FontWeight.normal,
+                        fontWeight: FontWeight.w500,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -311,7 +263,7 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
                       const SizedBox(height: 8),
                       TextButton(
                         onPressed: _pickDocument,
-                        child: Text(
+                        child: const Text(
                           'Change document',
                           style: TextStyle(color: AppColors.primary),
                         ),
@@ -330,7 +282,7 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: TextStyle(
+      style: const TextStyle(
         color: AppColors.gray700,
         fontSize: 12,
         fontWeight: FontWeight.w600,
@@ -342,31 +294,35 @@ class _IdVerificationStepPageState extends State<IdVerificationStepPage> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(
+      hintStyle: const TextStyle(
         color: AppColors.gray400,
         fontSize: 15,
       ),
       filled: true,
-      fillColor: AppColors.gray50,
+      fillColor: AppColors.white,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 16,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.gray200),
+        borderSide: const BorderSide(color: AppColors.gray300),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.gray200),
+        borderSide: const BorderSide(color: AppColors.gray300),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.primary, width: 2),
+        borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.danger),
+        borderSide: const BorderSide(color: AppColors.danger),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.danger, width: 2),
       ),
     );
   }

@@ -12,7 +12,7 @@ class CustomTextField extends StatelessWidget {
   final int? maxLines;
   final bool enabled;
 
-  const CustomTextField({
+    const CustomTextField({
     super.key,
     required this.controller,
     required this.labelText,
@@ -52,7 +52,7 @@ class CustomCard extends StatelessWidget {
   final Color? color;
   final VoidCallback? onTap;
 
-  const CustomCard({
+    const CustomCard({
     super.key,
     required this.child,
     this.padding,

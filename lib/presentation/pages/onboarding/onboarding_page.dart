@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_router.dart';
 import '../../../core/di/injection_container.dart';
+import '../../../data/models/user_model.dart';
 import '../../../domain/repositories/onboarding_repository.dart';
 import '../../bloc/onboarding/onboarding_bloc.dart';
 import '../../bloc/auth/auth_bloc.dart';
@@ -38,7 +39,8 @@ class OnboardingContent extends StatelessWidget {
       backgroundColor: AppColors.white,
       body: BlocConsumer<OnboardingBloc, OnboardingState>(
         listener: (context, state) {
-          if (state.status == OnboardingStatus.error && state.errorMessage != null) {
+          if (state.status == OnboardingStatus.error &&
+              state.errorMessage != null) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.errorMessage!),
@@ -47,8 +49,35 @@ class OnboardingContent extends StatelessWidget {
               ),
             );
           } else if (state.status == OnboardingStatus.success) {
+            // Update auth bloc with the updated user from onboarding response
+            final completedUser = state.completedUser;
+            if (completedUser != null) {
+              context
+                  .read<AuthBloc>()
+                  .add(AuthUserUpdated(user: completedUser));
+              print(
+                  '✅ Auth bloc updated with completed user: ${completedUser.email}');
+              print(
+                  '   - isOnboardingComplete: ${completedUser.isOnboardingComplete}');
+              print(
+                  '   - verificationStatus: ${completedUser.verificationStatus}');
+            } else {
+              // Fallback: Update the existing user with onboarding complete status
+              final authState = context.read<AuthBloc>().state;
+              if (authState.user != null) {
+                final updatedUser = authState.user!.copyWith(
+                  isOnboardingComplete: true,
+                  verificationStatus: VerificationStatus.pending,
+                );
+                context
+                    .read<AuthBloc>()
+                    .add(AuthUserUpdated(user: updatedUser));
+              }
+            }
+
             // Navigate to verification pending page
-            Navigator.of(context).pushReplacementNamed(AppRouter.verificationPending);
+            Navigator.of(context)
+                .pushReplacementNamed(AppRouter.verificationPending);
           }
         },
         builder: (context, state) {
@@ -57,12 +86,12 @@ class OnboardingContent extends StatelessWidget {
               children: [
                 // Header with stepper
                 _buildHeader(context, state),
-                
+
                 // Content area
                 Expanded(
                   child: _buildCurrentStep(state),
                 ),
-                
+
                 // Navigation buttons
                 _buildNavigationButtons(context, state),
               ],
@@ -80,7 +109,7 @@ class OnboardingContent extends StatelessWidget {
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: AppColors.gray200.withOpacity(0.5),
+            color: AppColors.gray200.withValues(alpha: 0.5),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -120,7 +149,7 @@ class OnboardingContent extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
-          
+
           // Step Indicator
           _buildStepIndicator(state),
         ],
@@ -142,13 +171,13 @@ class OnboardingContent extends StatelessWidget {
               Column(
                 children: [
                   Container(
-                    width: 32,
-                    height: 32,
+                    width: 36,
+                    height: 36,
                     decoration: BoxDecoration(
                       color: isCompleted
                           ? AppColors.secondary
                           : isCurrent
-                              ? AppColors.primary
+                              ? AppColors.secondary
                               : AppColors.gray200,
                       shape: BoxShape.circle,
                     ),
@@ -157,7 +186,7 @@ class OnboardingContent extends StatelessWidget {
                           ? const Icon(
                               Icons.check,
                               color: AppColors.white,
-                              size: 18,
+                              size: 20,
                             )
                           : Text(
                               '${index + 1}',
@@ -175,11 +204,15 @@ class OnboardingContent extends StatelessWidget {
                   Text(
                     stepTitle,
                     style: TextStyle(
-                      color: isCompleted || isCurrent
-                          ? AppColors.primary
-                          : AppColors.gray400,
+                      color: isCompleted
+                          ? AppColors.secondary
+                          : isCurrent
+                              ? AppColors.secondary
+                              : AppColors.gray400,
                       fontSize: 12,
-                      fontWeight: isCurrent ? FontWeight.w600 : FontWeight.normal,
+                      fontWeight: isCompleted || isCurrent
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -190,8 +223,9 @@ class OnboardingContent extends StatelessWidget {
                 Expanded(
                   child: Container(
                     height: 2,
-                    margin: const EdgeInsets.only(bottom: 24),
-                    color: isCompleted ? AppColors.secondary : AppColors.gray200,
+                    margin: const EdgeInsets.only(bottom: 28),
+                    color:
+                        isCompleted ? AppColors.secondary : AppColors.gray200,
                   ),
                 ),
             ],
@@ -227,7 +261,7 @@ class OnboardingContent extends StatelessWidget {
         color: AppColors.white,
         boxShadow: [
           BoxShadow(
-            color: AppColors.gray200.withOpacity(0.5),
+            color: AppColors.gray200.withValues(alpha: 0.5),
             blurRadius: 10,
             offset: const Offset(0, -2),
           ),
@@ -241,7 +275,9 @@ class OnboardingContent extends StatelessWidget {
               onPressed: isLoading
                   ? null
                   : () {
-                      context.read<OnboardingBloc>().add(const OnboardingPreviousStep());
+                      context
+                          .read<OnboardingBloc>()
+                          .add(const OnboardingPreviousStep());
                     },
               icon: const Icon(Icons.arrow_back, color: AppColors.gray600),
               label: const Text(
@@ -252,58 +288,71 @@ class OnboardingContent extends StatelessWidget {
                 ),
               ),
             ),
-          
+
           const Spacer(),
-          
+
           // Next/Complete button
-          SizedBox(
-            width: isLastStep ? 180 : 120,
-            height: 48,
-            child: ElevatedButton(
-              onPressed: isLoading || !state.isCurrentStepComplete
-                  ? null
-                  : () {
-                      if (isLastStep) {
-                        context.read<OnboardingBloc>().add(const OnboardingSubmitted());
-                      } else {
-                        context.read<OnboardingBloc>().add(const OnboardingNextStep());
-                      }
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: isLastStep ? AppColors.secondary : AppColors.primary,
-                foregroundColor: AppColors.white,
-                disabledBackgroundColor: AppColors.gray300,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          Flexible(
+            child: SizedBox(
+              width: isLastStep ? 200 : 120,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: isLoading || !state.isCurrentStepComplete
+                    ? null
+                    : () {
+                        if (isLastStep) {
+                          context
+                              .read<OnboardingBloc>()
+                              .add(const OnboardingSubmitted());
+                        } else {
+                          context
+                              .read<OnboardingBloc>()
+                              .add(const OnboardingNextStep());
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      isLastStep ? AppColors.secondary : AppColors.primary,
+                  foregroundColor: AppColors.white,
+                  disabledBackgroundColor: AppColors.gray300,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                 ),
-                elevation: 0,
-              ),
-              child: isLoading
-                  ? const SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.white),
+                child: isLoading
+                    ? const SizedBox(
+                        height: 24,
+                        width: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(AppColors.white),
+                        ),
+                      )
+                    : FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              isLastStep ? 'Complete Setup' : 'Next',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.arrow_forward,
+                              size: 20,
+                            ),
+                          ],
+                        ),
                       ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          isLastStep ? 'Complete Setup' : 'Next',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        const Icon(
-                          Icons.arrow_forward,
-                          size: 20,
-                        ),
-                      ],
-                    ),
+              ),
             ),
           ),
         ],

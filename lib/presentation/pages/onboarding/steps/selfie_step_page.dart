@@ -38,7 +38,7 @@ class _SelfieStepPageState extends State<SelfieStepPage> {
         setState(() {
           _selfiePath = image.path;
         });
-        
+
         if (mounted) {
           context.read<OnboardingBloc>().add(OnboardingSelfieUpdated(
                 selfiePath: image.path,
@@ -50,38 +50,6 @@ class _SelfieStepPageState extends State<SelfieStepPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error capturing selfie: ${e.toString()}'),
-            backgroundColor: AppColors.danger,
-          ),
-        );
-      }
-    }
-  }
-
-  Future<void> _pickFromGallery() async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
-      );
-
-      if (image != null) {
-        setState(() {
-          _selfiePath = image.path;
-        });
-        
-        if (mounted) {
-          context.read<OnboardingBloc>().add(OnboardingSelfieUpdated(
-                selfiePath: image.path,
-              ));
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error picking image: ${e.toString()}'),
             backgroundColor: AppColors.danger,
           ),
         );
@@ -136,69 +104,58 @@ class _SelfieStepPageState extends State<SelfieStepPage> {
   Widget _buildCaptureArea() {
     return Column(
       children: [
-        // Camera icon placeholder
+        // Camera icon placeholder - square with rounded corners
         Container(
-          width: 200,
-          height: 200,
+          width: 100,
+          height: 100,
           decoration: BoxDecoration(
             color: AppColors.gray100,
-            shape: BoxShape.circle,
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: AppColors.gray300,
-              width: 2,
+              width: 1,
             ),
           ),
-          child: Icon(
+          child: const Icon(
             Icons.camera_alt_outlined,
-            size: 80,
+            size: 40,
             color: AppColors.gray400,
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
         // Instructions
-        Text(
+        const Text(
           'Position your face in the frame',
           style: TextStyle(
             color: AppColors.gray600,
-            fontSize: 16,
+            fontSize: 15,
           ),
         ),
-        const SizedBox(height: 32),
+        const SizedBox(height: 20),
 
         // Open Camera Button
         ElevatedButton.icon(
           onPressed: _takeSelfie,
-          icon: Icon(Icons.camera_alt, color: AppColors.white),
-          label: Text(
+          icon: const Icon(Icons.camera_alt, color: AppColors.white, size: 18),
+          label: const Text(
             'Open Camera',
             style: TextStyle(
               color: AppColors.white,
               fontWeight: FontWeight.w600,
+              fontSize: 14,
             ),
           ),
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.secondary,
             padding: const EdgeInsets.symmetric(
-              horizontal: 32,
-              vertical: 16,
+              horizontal: 20,
+              vertical: 12,
             ),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Or pick from gallery
-        TextButton(
-          onPressed: _pickFromGallery,
-          child: Text(
-            'Or pick from gallery',
-            style: TextStyle(
-              color: AppColors.primary,
-              fontWeight: FontWeight.w500,
-            ),
+            elevation: 0,
           ),
         ),
       ],
@@ -220,7 +177,7 @@ class _SelfieStepPageState extends State<SelfieStepPage> {
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.success.withOpacity(0.3),
+                color: AppColors.success.withValues(alpha: 0.3),
                 blurRadius: 20,
                 spreadRadius: 5,
               ),
@@ -238,7 +195,7 @@ class _SelfieStepPageState extends State<SelfieStepPage> {
         const SizedBox(height: 24),
 
         // Success message
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
@@ -246,7 +203,7 @@ class _SelfieStepPageState extends State<SelfieStepPage> {
               color: AppColors.success,
               size: 24,
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(
               'Selfie captured successfully!',
               style: TextStyle(
@@ -262,8 +219,8 @@ class _SelfieStepPageState extends State<SelfieStepPage> {
         // Retake button
         OutlinedButton.icon(
           onPressed: _retakeSelfie,
-          icon: Icon(Icons.refresh, color: AppColors.primary),
-          label: Text(
+          icon: const Icon(Icons.refresh, color: AppColors.primary),
+          label: const Text(
             'Retake Selfie',
             style: TextStyle(
               color: AppColors.primary,
@@ -275,7 +232,7 @@ class _SelfieStepPageState extends State<SelfieStepPage> {
               horizontal: 24,
               vertical: 12,
             ),
-            side: BorderSide(color: AppColors.primary),
+            side: const BorderSide(color: AppColors.primary),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),

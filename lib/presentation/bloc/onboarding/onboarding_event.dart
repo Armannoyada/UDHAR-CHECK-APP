@@ -19,7 +19,6 @@ class OnboardingPreviousStep extends OnboardingEvent {
 
 /// Update address information
 class OnboardingAddressUpdated extends OnboardingEvent {
-
   const OnboardingAddressUpdated({
     required this.streetAddress,
     required this.city,
@@ -37,7 +36,6 @@ class OnboardingAddressUpdated extends OnboardingEvent {
 
 /// Update ID verification information
 class OnboardingIdUpdated extends OnboardingEvent {
-
   const OnboardingIdUpdated({
     required this.idType,
     required this.idNumber,
@@ -55,7 +53,6 @@ class OnboardingIdUpdated extends OnboardingEvent {
 
 /// Update selfie
 class OnboardingSelfieUpdated extends OnboardingEvent {
-
   const OnboardingSelfieUpdated({
     required this.selfiePath,
   });
@@ -67,7 +64,6 @@ class OnboardingSelfieUpdated extends OnboardingEvent {
 
 /// Update lending preferences (for lenders only)
 class OnboardingLendingPreferencesUpdated extends OnboardingEvent {
-
   const OnboardingLendingPreferencesUpdated({
     required this.maxLendingAmount,
     required this.termsAccepted,
@@ -91,7 +87,6 @@ class OnboardingReset extends OnboardingEvent {
 
 /// Set user role
 class OnboardingUserRoleSet extends OnboardingEvent {
-
   const OnboardingUserRoleSet({required this.role});
   final String role;
 

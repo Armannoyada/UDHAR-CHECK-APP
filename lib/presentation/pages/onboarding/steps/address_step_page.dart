@@ -149,7 +149,7 @@ class _AddressStepPageState extends State<AddressStepPage> {
               decoration: _inputDecoration('6-digit pincode').copyWith(
                 counterText: '',
                 helperText: 'Enter 6-digit pincode',
-                helperStyle: TextStyle(
+                helperStyle: const TextStyle(
                   color: AppColors.gray500,
                   fontSize: 12,
                 ),
@@ -174,7 +174,7 @@ class _AddressStepPageState extends State<AddressStepPage> {
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: TextStyle(
+      style: const TextStyle(
         color: AppColors.gray700,
         fontSize: 12,
         fontWeight: FontWeight.w600,
@@ -186,31 +186,35 @@ class _AddressStepPageState extends State<AddressStepPage> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(
+      hintStyle: const TextStyle(
         color: AppColors.gray400,
         fontSize: 15,
       ),
       filled: true,
-      fillColor: AppColors.gray50,
+      fillColor: AppColors.white,
       contentPadding: const EdgeInsets.symmetric(
         horizontal: 16,
         vertical: 16,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.gray200),
+        borderSide: const BorderSide(color: AppColors.gray300),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.gray200),
+        borderSide: const BorderSide(color: AppColors.gray300),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.primary, width: 2),
+        borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.danger),
+        borderSide: const BorderSide(color: AppColors.danger),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.danger, width: 2),
       ),
     );
   }

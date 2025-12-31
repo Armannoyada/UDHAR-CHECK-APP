@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:injectable/injectable.dart';
 import '../utils/constants.dart';
+import '../../data/services/storage_service.dart';
 
 @singleton
 class ApiClient {
@@ -40,20 +41,32 @@ class ApiClient {
 
 class AuthInterceptor extends Interceptor {
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
-    // Add authorization token here
-    // Example: 
-    // final token = await getToken();
-    // if (token != null) {
-    //   options.headers['Authorization'] = 'Bearer $token';
-    // }
-    
+  void onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
+    try {
+      // Get token from secure storage
+      final storage = await StorageService.getInstance();
+      final token = await storage.getAccessToken();
+
+      if (token != null && token.isNotEmpty) {
+        options.headers['Authorization'] = 'Bearer $token';
+        print('🔑 Added auth token to request: ${options.path}');
+      }
+    } catch (e) {
+      print('⚠️ Error adding auth token: $e');
+    }
+
     handler.next(options);
   }
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) {
-    // Handle errors globally
+    // Handle 401 Unauthorized - token expired or invalid
+    if (err.response?.statusCode == 401) {
+      print('🚫 Unauthorized: Token may be expired or invalid');
+      // TODO: Implement token refresh logic here
+    }
+
     handler.next(err);
   }
 }

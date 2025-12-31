@@ -28,14 +28,22 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWithLoading());
 
+    print('🔐 Login attempt: ${event.email}');
+    
     final result = await _authRepository.login(
       email: event.email,
       password: event.password,
     );
 
     result.fold(
-      (failure) => emit(state.copyWithError(failure.message)),
-      (user) => emit(state.copyWithAuthenticated(user)),
+      (failure) {
+        print('❌ Login failed: ${failure.message}');
+        emit(state.copyWithError(failure.message));
+      },
+      (user) {
+        print('✅ Login successful: ${user.email} (${user.role.name})');
+        emit(state.copyWithAuthenticated(user));
+      },
     );
   }
 
@@ -46,6 +54,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(state.copyWithLoading());
 
+    print('📝 Register attempt: ${event.email}');
+    
     final result = await _authRepository.register(
       firstName: event.firstName,
       lastName: event.lastName,
@@ -57,8 +67,17 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     result.fold(
-      (failure) => emit(state.copyWithError(failure.message)),
-      (user) => emit(state.copyWithAuthenticated(user)),
+      (failure) {
+        print('❌ Registration failed: ${failure.message}');
+        emit(state.copyWithError(failure.message));
+      },
+      (user) {
+        print('✅ Registration successful: ${user.email}');
+        print('   - User ID: ${user.id}');
+        print('   - isOnboardingComplete: ${user.isOnboardingComplete}');
+        print('   - needsOnboarding: ${user.needsOnboarding}');
+        emit(state.copyWithAuthenticated(user));
+      },
     );
   }
 

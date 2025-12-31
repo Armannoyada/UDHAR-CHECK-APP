@@ -85,13 +85,13 @@ class _LendingSetupStepPageState extends State<LendingSetupStepPage> {
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
               decoration: _inputDecoration('e.g., 50000').copyWith(
                 prefixText: '₹ ',
-                prefixStyle: TextStyle(
+                prefixStyle: const TextStyle(
                   color: AppColors.gray700,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
                 helperText: 'This is the maximum amount you\'re willing to lend at any time',
-                helperStyle: TextStyle(
+                helperStyle: const TextStyle(
                   color: AppColors.gray500,
                   fontSize: 12,
                 ),
@@ -124,7 +124,7 @@ class _LendingSetupStepPageState extends State<LendingSetupStepPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Terms and Conditions',
                     style: TextStyle(
                       color: AppColors.gray900,
@@ -133,7 +133,7 @@ class _LendingSetupStepPageState extends State<LendingSetupStepPage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  Text(
+                  const Text(
                     'By becoming a lender on this platform, you agree to:',
                     style: TextStyle(
                       color: AppColors.gray600,
@@ -160,7 +160,7 @@ class _LendingSetupStepPageState extends State<LendingSetupStepPage> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
+                                const Text(
                                   '• ',
                                   style: TextStyle(
                                     color: AppColors.gray700,
@@ -171,7 +171,7 @@ class _LendingSetupStepPageState extends State<LendingSetupStepPage> {
                                 Expanded(
                                   child: Text(
                                     term,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                       color: AppColors.gray700,
                                       fontSize: 14,
                                       height: 1.4,
@@ -219,7 +219,7 @@ class _LendingSetupStepPageState extends State<LendingSetupStepPage> {
                         ),
                       ),
                       child: _termsAccepted
-                          ? Icon(
+                          ? const Icon(
                               Icons.check,
                               size: 16,
                               color: AppColors.white,
@@ -227,7 +227,7 @@ class _LendingSetupStepPageState extends State<LendingSetupStepPage> {
                           : null,
                     ),
                     const SizedBox(width: 12),
-                    Expanded(
+                    const Expanded(
                       child: Text(
                         'I accept the terms and conditions',
                         style: TextStyle(
@@ -250,7 +250,7 @@ class _LendingSetupStepPageState extends State<LendingSetupStepPage> {
   Widget _buildLabel(String text) {
     return Text(
       text,
-      style: TextStyle(
+      style: const TextStyle(
         color: AppColors.gray700,
         fontSize: 12,
         fontWeight: FontWeight.w600,
@@ -262,7 +262,7 @@ class _LendingSetupStepPageState extends State<LendingSetupStepPage> {
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: TextStyle(
+      hintStyle: const TextStyle(
         color: AppColors.gray400,
         fontSize: 15,
       ),
@@ -274,19 +274,19 @@ class _LendingSetupStepPageState extends State<LendingSetupStepPage> {
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.gray200),
+        borderSide: const BorderSide(color: AppColors.gray200),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.gray200),
+        borderSide: const BorderSide(color: AppColors.gray200),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.primary, width: 2),
+        borderSide: const BorderSide(color: AppColors.primary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: AppColors.danger),
+        borderSide: const BorderSide(color: AppColors.danger),
       ),
     );
   }

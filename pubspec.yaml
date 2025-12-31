@@ -37,8 +37,8 @@ dependencies:
   connectivity_plus: ^5.0.2
   
   # File & Image Picker
-  file_picker: ^6.1.1
-  image_picker: ^1.0.7
+  file_picker: ^8.0.0
+  image_picker: ^1.1.2
   http_parser: ^4.0.2
   
   # JSON Serialization
