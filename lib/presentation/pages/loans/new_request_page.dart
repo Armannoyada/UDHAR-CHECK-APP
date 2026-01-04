@@ -19,7 +19,6 @@ class _NewRequestPageState extends State<NewRequestPage> {
   String _selectedDuration = '30 Days';
   String _selectedPurpose = 'Select purpose';
   bool _isLoading = false;
-
   final List<String> _durations = [
     '7 Days',
     '14 Days',
@@ -109,8 +108,8 @@ class _NewRequestPageState extends State<NewRequestPage> {
         backgroundColor: AppColors.white,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.menu, color: AppColors.gray700),
-          onPressed: () => Scaffold.of(context).openDrawer(),
+          icon: const Icon(Icons.arrow_back, color: AppColors.gray700),
+          onPressed: () => Navigator.of(context).pop(),
         ),
         title: Row(
           mainAxisSize: MainAxisSize.min,

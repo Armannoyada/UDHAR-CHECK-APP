@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
 
     switch (role) {
       case DemoRole.admin:
-        email = 'admin@udharcheck.com';
+        email = 'admin@udhar.com';
         password = 'admin123';
         break;
       case DemoRole.lender:
@@ -146,7 +146,9 @@ class _LoginPageState extends State<LoginPage> {
               } else {
                 // Navigate to home based on role
                 print('🏠 Navigating to home... Role: ${user?.role}');
-                if (user?.role == UserRole.lender) {
+                if (user?.role == UserRole.admin) {
+                  Navigator.of(context).pushReplacementNamed(AppRouter.adminHome);
+                } else if (user?.role == UserRole.lender) {
                   Navigator.of(context).pushReplacementNamed(AppRouter.lenderHome);
                 } else {
                   Navigator.of(context).pushReplacementNamed(AppRouter.home);

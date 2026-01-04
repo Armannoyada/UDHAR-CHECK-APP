@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_router.dart';
+import '../../../core/di/injection_container.dart';
 import '../../../data/models/user_model.dart';
+import '../../../data/services/notification_service.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../loans/new_request_page.dart';
 import '../loans/my_requests_page.dart';
+import '../profile/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,11 +19,13 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _currentIndex = 0;
+  int _unreadNotificationCount = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
+    _loadUnreadNotificationCount();
     // Check if user is a lender and redirect
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = context.read<AuthBloc>().state.user;
@@ -28,6 +33,20 @@ class _HomePageState extends State<HomePage> {
         Navigator.of(context).pushReplacementNamed(AppRouter.lenderHome);
       }
     });
+  }
+
+  Future<void> _loadUnreadNotificationCount() async {
+    try {
+      final service = getIt<NotificationService>();
+      final response = await service.getUnreadCount();
+      if (mounted) {
+        setState(() {
+          _unreadNotificationCount = response.data?.count ?? 0;
+        });
+      }
+    } catch (e) {
+      // Silently fail
+    }
   }
 
   @override
@@ -126,7 +145,8 @@ class _HomePageState extends State<HomePage> {
                       const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.close, color: AppColors.gray600),
-                        onPressed: () => _scaffoldKey.currentState?.closeDrawer(),
+                        onPressed: () =>
+                            _scaffoldKey.currentState?.closeDrawer(),
                       ),
                     ],
                   ),
@@ -154,13 +174,15 @@ class _HomePageState extends State<HomePage> {
                           _scaffoldKey.currentState?.closeDrawer();
                           // Navigate to new request page
                           Navigator.of(this.context).push(
-                            MaterialPageRoute(builder: (_) => const NewRequestPage()),
+                            MaterialPageRoute(
+                                builder: (_) => const NewRequestPage()),
                           );
                         },
                       ),
                       _buildDrawerItem(
                         icon: Icons.list_alt_outlined,
                         label: 'My Requests',
+                        isSelected: _currentIndex == 1,
                         onTap: () {
                           _scaffoldKey.currentState?.closeDrawer();
                           setState(() => _currentIndex = 1);
@@ -182,18 +204,23 @@ class _HomePageState extends State<HomePage> {
                       _buildDrawerItem(
                         icon: Icons.notifications_outlined,
                         label: 'Notifications',
-                        badgeCount: 3,
+                        badgeCount: _unreadNotificationCount,
                         onTap: () {
                           _scaffoldKey.currentState?.closeDrawer();
-                          Navigator.of(this.context).pushNamed('/notifications');
+                          Navigator.of(this.context)
+                              .pushNamed(AppRouter.notifications)
+                              .then((_) {
+                            _loadUnreadNotificationCount();
+                          });
                         },
                       ),
                       _buildDrawerItem(
                         icon: Icons.person_outline,
                         label: 'Profile',
+                        isSelected: _currentIndex == 2,
                         onTap: () {
                           _scaffoldKey.currentState?.closeDrawer();
-                          setState(() => _currentIndex = 3);
+                          setState(() => _currentIndex = 2);
                         },
                       ),
                       _buildDrawerItem(
@@ -294,7 +321,7 @@ class _HomePageState extends State<HomePage> {
         clipBehavior: Clip.none,
         children: [
           Icon(icon, color: color, size: 22),
-          if (badgeCount != null)
+          if (badgeCount != null && badgeCount > 0)
             Positioned(
               right: -6,
               top: -6,
@@ -309,7 +336,7 @@ class _HomePageState extends State<HomePage> {
                   minHeight: 18,
                 ),
                 child: Text(
-                  badgeCount.toString(),
+                  badgeCount > 99 ? '99+' : badgeCount.toString(),
                   style: const TextStyle(
                     color: AppColors.white,
                     fontSize: 10,
@@ -430,28 +457,35 @@ class _HomePageState extends State<HomePage> {
               icon: const Icon(Icons.notifications_outlined,
                   color: AppColors.gray700),
               onPressed: () {
-                Navigator.of(context).pushNamed('/notifications');
+                Navigator.of(context)
+                    .pushNamed(AppRouter.notifications)
+                    .then((_) {
+                  _loadUnreadNotificationCount();
+                });
               },
             ),
-            Positioned(
-              right: 8,
-              top: 8,
-              child: Container(
-                padding: const EdgeInsets.all(4),
-                decoration: const BoxDecoration(
-                  color: AppColors.danger,
-                  shape: BoxShape.circle,
-                ),
-                child: const Text(
-                  '3',
-                  style: TextStyle(
-                    color: AppColors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
+            if (_unreadNotificationCount > 0)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: AppColors.danger,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    _unreadNotificationCount > 99
+                        ? '99+'
+                        : '$_unreadNotificationCount',
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ],
@@ -460,12 +494,20 @@ class _HomePageState extends State<HomePage> {
 
   Widget _buildBody(BuildContext context) {
     // Show different content based on current index
-    if (_currentIndex == 1) {
-      // My Requests page
-      return const MyRequestsPage();
+    switch (_currentIndex) {
+      case 1:
+        // My Requests page (Loans tab)
+        return const MyRequestsPage();
+      case 2:
+        // Profile page
+        return const ProfilePage();
+      default:
+        // Dashboard (index 0)
+        return _buildDashboard();
     }
-    
-    // Dashboard (index 0 and default)
+  }
+
+  Widget _buildDashboard() {
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -830,11 +872,6 @@ class _HomePageState extends State<HomePage> {
             icon: Icon(Icons.receipt_long_outlined),
             activeIcon: Icon(Icons.receipt_long),
             label: 'Loans',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history_outlined),
-            activeIcon: Icon(Icons.history),
-            label: 'History',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outline),

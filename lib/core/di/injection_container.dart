@@ -5,6 +5,9 @@ import '../network/network_info.dart';
 import '../../data/services/auth_service.dart';
 import '../../data/services/storage_service.dart';
 import '../../data/services/onboarding_service.dart';
+import '../../data/services/notification_service.dart';
+import '../../data/services/loan_service.dart';
+import '../../data/services/admin_service.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../data/repositories/onboarding_repository_impl.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -34,6 +37,15 @@ Future<void> configureDependencies() async {
   );
   getIt.registerLazySingleton(
     () => OnboardingService(getIt<ApiClient>()),
+  );
+  getIt.registerLazySingleton(
+    () => NotificationService(getIt<ApiClient>()),
+  );
+  getIt.registerLazySingleton(
+    () => LoanService(getIt<ApiClient>()),
+  );
+  getIt.registerLazySingleton(
+    () => AdminService(getIt<ApiClient>()),
   );
   
   // Repositories

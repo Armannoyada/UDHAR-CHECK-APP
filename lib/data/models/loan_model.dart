@@ -282,8 +282,32 @@ class LoanListResponse {
     this.limit,
   });
 
-  factory LoanListResponse.fromJson(Map<String, dynamic> json) =>
-      _$LoanListResponseFromJson(json);
+  factory LoanListResponse.fromJson(Map<String, dynamic> json) {
+    // Handle nested structure from backend: data.requests or data.loans
+    final responseData = json['data'];
+    List<Loan>? loans;
+    
+    if (responseData is Map) {
+      // Backend returns { data: { requests: [...] } } or { data: { loans: [...] } }
+      final requestsList = responseData['requests'] ?? responseData['loans'];
+      if (requestsList is List) {
+        loans = requestsList.map((e) => Loan.fromJson(e as Map<String, dynamic>)).toList();
+      }
+    } else if (responseData is List) {
+      // Direct array
+      loans = responseData.map((e) => Loan.fromJson(e as Map<String, dynamic>)).toList();
+    }
+
+    return LoanListResponse(
+      success: json['success'] ?? true,
+      message: json['message'],
+      data: loans,
+      total: responseData is Map ? responseData['total'] : null,
+      page: responseData is Map ? responseData['page'] : null,
+      limit: responseData is Map ? responseData['limit'] : null,
+    );
+  }
+  
   Map<String, dynamic> toJson() => _$LoanListResponseToJson(this);
 }
 
@@ -324,7 +348,7 @@ class CreateLoanRequest {
   Map<String, dynamic> toJson() => {
         'amount': amount,
         'purpose': purpose,
-        'durationDays': durationDays,
+        'duration': durationDays, // Backend expects 'duration' not 'durationDays'
         'interestRate': interestRate,
         if (description != null) 'description': description,
       };

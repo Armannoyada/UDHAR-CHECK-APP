@@ -1,8 +1,11 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/routes/app_router.dart';
+import '../../../core/di/injection_container.dart';
 import '../../../data/models/user_model.dart';
+import '../../../data/services/notification_service.dart';
 import '../../bloc/auth/auth_bloc.dart';
 import '../loans/loan_requests_page.dart';
 import '../loans/my_lending_page.dart';
@@ -16,11 +19,13 @@ class LenderHomePage extends StatefulWidget {
 
 class _LenderHomePageState extends State<LenderHomePage> {
   int _currentIndex = 0;
+  int _unreadNotificationCount = 0;
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   void initState() {
     super.initState();
+    _loadUnreadNotificationCount();
     // Check if user is a borrower and redirect to borrower home
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = context.read<AuthBloc>().state.user;
@@ -28,6 +33,20 @@ class _LenderHomePageState extends State<LenderHomePage> {
         Navigator.of(context).pushReplacementNamed(AppRouter.home);
       }
     });
+  }
+
+  Future<void> _loadUnreadNotificationCount() async {
+    try {
+      final service = getIt<NotificationService>();
+      final response = await service.getUnreadCount();
+      if (mounted) {
+        setState(() {
+          _unreadNotificationCount = response.data?.count ?? 0;
+        });
+      }
+    } catch (e) {
+      // Silently fail
+    }
   }
 
   @override
@@ -167,6 +186,15 @@ class _LenderHomePageState extends State<LenderHomePage> {
                           setState(() => _currentIndex = 2);
                         },
                       ),
+                      _buildDrawerItem(
+                        icon: Icons.history_outlined,
+                        label: 'History',
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.of(this.context)
+                              .pushNamed(AppRouter.history);
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -183,10 +211,14 @@ class _LenderHomePageState extends State<LenderHomePage> {
                       _buildDrawerItem(
                         icon: Icons.notifications_outlined,
                         label: 'Notifications',
-                        badgeCount: 3,
+                        badgeCount: _unreadNotificationCount,
                         onTap: () {
-                          Navigator.pop(context);
-                          // Navigate to notifications
+                          _scaffoldKey.currentState?.closeDrawer();
+                          Navigator.of(this.context)
+                              .pushNamed(AppRouter.notifications)
+                              .then((_) {
+                            _loadUnreadNotificationCount();
+                          });
                         },
                       ),
                       _buildDrawerItem(
@@ -194,7 +226,8 @@ class _LenderHomePageState extends State<LenderHomePage> {
                         label: 'Profile',
                         onTap: () {
                           Navigator.pop(context);
-                          // Navigate to profile
+                          Navigator.of(this.context)
+                              .pushNamed(AppRouter.profile);
                         },
                       ),
                       _buildDrawerItem(
@@ -304,7 +337,7 @@ class _LenderHomePageState extends State<LenderHomePage> {
         clipBehavior: Clip.none,
         children: [
           Icon(icon, color: color, size: 22),
-          if (badgeCount != null)
+          if (badgeCount != null && badgeCount > 0)
             Positioned(
               right: -6,
               top: -6,
@@ -319,7 +352,7 @@ class _LenderHomePageState extends State<LenderHomePage> {
                   minHeight: 18,
                 ),
                 child: Text(
-                  badgeCount.toString(),
+                  badgeCount > 99 ? '99+' : badgeCount.toString(),
                   style: const TextStyle(
                     color: AppColors.white,
                     fontSize: 10,
@@ -434,12 +467,42 @@ class _LenderHomePageState extends State<LenderHomePage> {
       ),
       centerTitle: true,
       actions: [
-        IconButton(
-          icon: const Icon(Icons.notifications_outlined,
-              color: AppColors.gray700),
-          onPressed: () {
-            // Navigate to notifications
-          },
+        Stack(
+          children: [
+            IconButton(
+              icon: const Icon(Icons.notifications_outlined,
+                  color: AppColors.gray700),
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamed(AppRouter.notifications)
+                    .then((_) {
+                  _loadUnreadNotificationCount();
+                });
+              },
+            ),
+            if (_unreadNotificationCount > 0)
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: AppColors.danger,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(
+                    _unreadNotificationCount > 99
+                        ? '99+'
+                        : '$_unreadNotificationCount',
+                    style: const TextStyle(
+                      color: AppColors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
     );
